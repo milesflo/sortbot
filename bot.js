@@ -18,6 +18,19 @@ bot.checkRole = (msg, role) => {
 	}
 }
 
+bot.setFaction = function(msg, roleName) {
+	targetRole = msg.guild.roles.find("name",roleName);
+	if (targetRole!=undefined) {
+		msg.member.removeRoles(msg.member.roles).then(()=>{
+			msg.member.addRole(targetRole.id).then(()=> {
+				console.log(`User joined ${roleName}`);
+			}).catch((err)=> {
+				console.log(`Something went very wrong with the ${roleName} command.`,err)
+			})
+		})
+	}
+}
+
 const commands = {
 	'ping': {
 		process: (msg,arg) => {
@@ -27,40 +40,66 @@ const commands = {
 	},
 	'bos': {
 		process: (msg,arg)=> {
-			console.log("User joined BoS");
+			bot.setFaction(msg,"Brotherhood of Steel");
 		},
 		description: "Join the Brotherhood of Steel"
-	}
+	},
 	'legion': {
-		process: (msg,arg)=>{
-			console.log("User joined Legion");
+		process: (msg,arg)=> {
+			bot.setFaction(msg,"Caesar's Legion");
 		},
 		description: "Join the Legion"
 	},
 	'ncr': {
 		process: (msg,arg)=> {
-			console.log("User joined NCR");
+			bot.setFaction(msg,"New California Republic");
 		},
 		description: "Join the NCR"
 	},
 	'enclave': {
 		process: (msg,arg)=> {
-			console.log("User joined Enclave");
+			bot.setFaction(msg,"Enclave");
 		},
 		description: "Join the Enclave"
 	},
-	'addrole': {
-		process: (msg,arg) => {
-
+	'revoke':{
+		process: (msg)=>{
+			if (msg.mentions.users.first() != undefined) {
+				let target = msg.guild.member(msg.mentions.users.first());
+				if (target.highestRole.name === 'Ranger'||'Overseer') {
+					msg.author.addRole(msg.guild.roles.find("name", "Blacklisted").id).then((value)=>{
+						msg.channel.sendMessage("_The bot fries your hand as you attempt this treasonous act, rendering you incapable of interacting with the bot any further_");
+					})
+				} else {
+					if (bot.checkRole(msg,"Ranger")||bot.checkRole(msg,"Overseer")) {
+						target.addRole(msg.guild.roles.find("name", "Blacklisted").id).then((value) => {
+							msg.channel.sendMessage(`${target} has had their bot privileges revoked until further notice.`)
+						}, (reason) => {
+							console.log(reason);
+						});
+					} else {
+						bot.reject(msg);
+					}
+				}
+			} else {
+				msg.channel.sendMessage("Mention a user to revoke.")
+			}
 		},
-		description: ""
+		usage:"<@target>",
+		description: "Revoke bot privileges from target. Requires permissions."
 	}
-}
+	// 'addrole': {
+	// 	process: (msg,arg) => {
 
+	// 	},
+	// 	description: ""
+	// }
+}
 
 bot.login(auth.token);
 
 bot.on('ready', () => {
+	bot
 	console.log("ready, m8");
 })
 
