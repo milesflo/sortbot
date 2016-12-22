@@ -20,14 +20,40 @@ bot.checkRole = (msg, role) => {
 
 const commands = {
 	'ping': {
-		process: (msg) => {
-			console.log("pong")
-		}
+		process: (msg,arg) => {
+			console.log("pong");
+		},
+		description: "Ping the bot to test its respons time."
+	},
+	'bos': {
+		process: (msg,arg)=> {
+			console.log("User joined BoS");
+		},
+		description: "Join the Brotherhood of Steel"
+	}
+	'legion': {
+		process: (msg,arg)=>{
+			console.log("User joined Legion");
+		},
+		description: "Join the Legion"
+	},
+	'ncr': {
+		process: (msg,arg)=> {
+			console.log("User joined NCR");
+		},
+		description: "Join the NCR"
+	},
+	'enclave': {
+		process: (msg,arg)=> {
+			console.log("User joined Enclave");
+		},
+		description: "Join the Enclave"
 	},
 	'addrole': {
-		process: () => {
+		process: (msg,arg) => {
 
-		}
+		},
+		description: ""
 	}
 }
 
@@ -41,16 +67,16 @@ bot.on('ready', () => {
 bot.on('message', (msg) => {
 	if (msg.author.bot||msg.system||msg.tts||msg.channel.type === 'dm') return;
 	// if not something the bot cares about, exit out
-	if(msg.content.startsWith(char)) {
+	if (msg.content.startsWith(char)) {
 		//Trim the mention from the message and any whitespace
 		let command = msg.content.substring(msg.content.indexOf(char),msg.content.length).trim();
 		if (command.startsWith(char)) {
 			//Get command to execute
 			let to_execute = command.split(char).slice(1).join().split(' ')[0];
 			//Get string after command
-			let argument = command.split(char).slice(1).join().split(' ').slice(1).join(" ");
+			let arg = command.split(char).slice(1).join().split(' ').slice(1).join(" ");
 			if (commands[to_execute]) {
-				commands[to_execute].process(msg, argument)
+				commands[to_execute].process(msg, arg)
 			}
 		}  else {
 			//once every x minutes, give poster y xp
