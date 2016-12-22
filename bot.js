@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 const auth = require("./auth.json");
-const char = '>';
+const char = '--';
 
 const bot = new Discord.Client();
 
@@ -32,6 +32,28 @@ bot.setFaction = function(msg, roleName) {
 }
 
 const commands = {
+	'help': {
+		process: (msg, argument) => {
+			let commandList = 'Available Commands:```'
+			for (cmd in commands) {
+				if (!commands[cmd].discrete) {
+					let command = char + cmd;
+					let usage = commands[cmd].usage;
+					if (usage) {
+						command += " " + usage;
+					}
+					let description = commands[cmd].description;
+					if(description){
+						command += "\n\t" + description;
+					}
+					commandList+=command+"\n";
+				}
+			}
+			commandList += "```\n";
+			msg.author.sendMessage(commandList)
+		},
+		description: "Messages user list of commands"
+	},
 	'ping': {
 		process: (msg,arg) => {
 			console.log("pong");
@@ -99,7 +121,7 @@ const commands = {
 bot.login(auth.token);
 
 bot.on('ready', () => {
-	bot.user.setStatus(`online`, `Say ${char}help`).then(()=> {
+	bot.user.setGame(`Say ${char}help`).then(()=> {
 		console.log("ready, m8");
 	}).catch((err)=>{
 		console.log(err);
