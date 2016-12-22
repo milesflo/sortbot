@@ -99,8 +99,11 @@ const commands = {
 bot.login(auth.token);
 
 bot.on('ready', () => {
-	bot
-	console.log("ready, m8");
+	bot.user.setStatus(`online`, `Say ${char}help`).then(()=> {
+		console.log("ready, m8");
+	}).catch((err)=>{
+		console.log(err);
+	})
 })
 
 bot.on('message', (msg) => {
