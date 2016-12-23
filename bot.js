@@ -52,7 +52,8 @@ const commands = {
 			commandList += "```\n";
 			msg.author.sendMessage(commandList)
 		},
-		description: "Messages user list of commands"
+		description: "Messages user list of commands",
+		discrete:true
 	},
 	'ping': {
 		process: (msg,arg) => {
@@ -88,8 +89,9 @@ const commands = {
 		process: (msg)=>{
 			if (msg.mentions.users.first() != undefined) {
 				let target = msg.guild.member(msg.mentions.users.first());
+				console.log(target);
 				if (target.highestRole.name === 'Ranger'||'Overseer') {
-					msg.author.addRole(msg.guild.roles.find("name", "Blacklisted").id).then((value)=>{
+					msg.member.addRole(msg.guild.roles.find("name", "Blacklisted").id).then((value)=>{
 						msg.channel.sendMessage("_The bot fries your hand as you attempt this treasonous act, rendering you incapable of interacting with the bot any further_");
 					})
 				} else {
