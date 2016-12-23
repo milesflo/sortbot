@@ -4,6 +4,11 @@ const char = '--';
 
 const bot = new Discord.Client();
 
+function del(msg) {
+	if (msg.deletable) msg.delete(0);
+}
+
+
 bot.checkRole = (msg, role) => {
 	if (msg.guild.roles.find('name',role) != undefined) {
 		let foundRole = msg.guild.roles.find('name',role);
@@ -19,15 +24,22 @@ bot.checkRole = (msg, role) => {
 }
 
 bot.setFaction = function(msg, roleName) {
-	targetRole = msg.guild.roles.find("name",roleName);
+	let targetRole = msg.guild.roles.find("name",roleName);
+	let r = msg.member.roles;
+	console.log(roleName,targetRole);
 	if (targetRole!=undefined) {
-		msg.member.removeRoles(msg.member.roles).then(()=>{
-			msg.member.addRole(targetRole.id).then(()=> {
+		msg.member.removeRoles(r)
+			.then((member)=>{
+				member.addRole(targetRole)
+			.then(()=> {
 				console.log(`User joined ${roleName}`);
+				return del(msg);
 			}).catch((err)=> {
 				console.log(`Something went very wrong with the ${roleName} command.`,err)
 			})
 		})
+	}  else {
+		console.log(`Role ${roleName} does not exist`);
 	}
 }
 
@@ -50,17 +62,16 @@ const commands = {
 				}
 			}
 			commandList += "```\n";
-			var output = msg.author.sendMessage(commandList);
-
-
+			let output = msg.author.sendMessage(commandList);
+			return del(msg);
 		},
 		description: "Messages user list of commands"
 	},
 	'ping': {
 		process: (msg,arg) => {
-			console.log("pong");
+			msg.reply()
 		},
-		description: "Ping the bot to test its respons time."
+		description: "Ping the bot."
 	},
 	'bos': {
 		process: (msg,arg)=> {
@@ -86,12 +97,31 @@ const commands = {
 		},
 		description: "Join the Enclave"
 	},
+	'auxilia': {
+		process: (msg,arg)=> {
+			bot.setFaction(msg,"Auxilia");
+		},
+		description: "Join Auxilia Mercenary Company"
+	},
+	'dragon': {
+		process: (msg,arg)=> {
+			bot.setFaction(msg,"Dragon's Order");
+		},
+		description: "Join the Dragon's Order"
+	},
+	'leaveall': {
+		process: (msg,arg)=> {
+			bot.setFaction(msg,"Dweller");
+		},
+		description: "Leave all factions and become a Dweller"
+	},
 	'revoke':{
 		process: (msg)=>{
 			if (msg.mentions.users.first() != undefined) {
 				let target = msg.guild.member(msg.mentions.users.first());
-				console.log(target);
-				if (target.highestRole.name === 'Ranger'||'Overseer') {
+				console.log(target.highestRole.name);
+				console.log(msg.member.highestRole.name);
+				if (target.highestRole.name === 'Ranger'||target.highestRole.name === 'Overseer') {
 					msg.member.addRole(msg.guild.roles.find("name", "Blacklisted").id).then((value)=>{
 						msg.channel.sendMessage("_The bot fries your hand as you attempt this treasonous act, rendering you incapable of interacting with the bot any further_");
 					})
@@ -112,8 +142,27 @@ const commands = {
 		},
 		usage:"<@target>",
 		description: "Revoke bot privileges from target. Requires permissions."
+	}, 
+	'projectpurity': {
+		process:(msg) => {
+			// for fixing all of the oopsies
+			if (msg.author.id==="127060142935113728") {
+				let plebs = msg.guild.members.findAll("highestRole","@everyone")
+				console.log(plebs);
+				for (i = 0; i<plebs.length;i++) {
+					plebs[i].addRole(msg.guild.roles.find("name","Dweller"));
+				}
+
+				msg.channel.sendMessage(`${plebs.length} members purified.`).then((outgoingMsg)=> {
+					del(outgoingMsg);
+				});
+
+			}  else {
+				return msg.channel.sendMessage("Your Science stat is not high enough.. :wink:")
+			}
+		}
 	}
-	// 'addrole': {
+	// 'newrole': {
 	// 	process: (msg,arg) => {
 
 	// 	},
@@ -131,8 +180,16 @@ bot.on('ready', () => {
 	})
 })
 
+bot.on("guildMemberAdd", (newMember) => {
+	newMember.addRole(newMember.guild.roles.find("name","Dweller"))
+	.then()
+	.catch((err)=>{
+		console.log("Problem with guildMemberAdd:\n",err);
+	});
+})
+
 bot.on('message', (msg) => {
-	if (msg.author.bot||msg.system||msg.tts||msg.channel.type === 'dm') return;
+	if (msg.author.bot||msg.system||msg.tts||msg.channel.type === 'dm'||bot.checkRole(msg,"Blacklisted")) return;
 	// if not something the bot cares about, exit out
 	if (msg.content.startsWith(char)) {
 		//Trim the mention from the message and any whitespace
@@ -143,11 +200,8 @@ bot.on('message', (msg) => {
 			//Get string after command
 			let arg = command.split(char).slice(1).join().split(' ').slice(1).join(" ");
 			if (commands[to_execute]) {
-				commands[to_execute].process(msg, arg)
+				commands[to_execute].process(msg, arg);
 			}
-		}  else {
-			//once every x minutes, give poster y xp
-			return level.msgXp(msg,3,5);
 		}
 	}
 });
