@@ -34,7 +34,7 @@ bot.setFaction = function(msg, roleName) {
 const commands = {
 	'help': {
 		process: (msg, argument) => {
-			let commandList = 'Available Commands:```'
+			let commandList = 'Available Commands:```\n'
 			for (cmd in commands) {
 				if (!commands[cmd].discrete) {
 					let command = char + cmd;
@@ -50,10 +50,11 @@ const commands = {
 				}
 			}
 			commandList += "```\n";
-			msg.author.sendMessage(commandList)
+			var output = msg.author.sendMessage(commandList);
+
+
 		},
-		description: "Messages user list of commands",
-		discrete:true
+		description: "Messages user list of commands"
 	},
 	'ping': {
 		process: (msg,arg) => {
