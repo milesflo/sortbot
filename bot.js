@@ -69,7 +69,7 @@ const commands = {
 	},
 	'ping': {
 		process: (msg,arg) => {
-			msg.reply()
+			msg.reply("Pong!")
 		},
 		description: "Ping the bot."
 	},
