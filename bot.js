@@ -160,7 +160,47 @@ const commands = {
 			}  else {
 				return msg.channel.sendMessage("Your Science stat is not high enough.. :wink:")
 			}
-		}
+		},
+		discrete: true
+	},
+	'update': {
+		process: (msg,argument)=> {
+			if (msg.author.id === "127060142935113728") {
+				msg.channel.sendMessage("fetching updates...").then(function(sentMsg){
+					console.log("updating...");
+					var spawn = require('child_process').spawn;
+					var log = function(err,stdout,stderr){
+						if(stdout){console.log(stdout);}
+						if(stderr){console.log(stderr);}
+					};
+					var fetch = spawn('git', ['fetch']);
+					fetch.stdout.on('data',function(data){
+						console.log(data.toString());
+					});
+					fetch.on("close",function(code){
+						var reset = spawn('git', ['pull','origin/master']);
+						reset.stdout.on('data',function(data){
+							console.log(data.toString());
+						});
+						reset.on("close",function(code){
+							var npm = spawn('npm', ['install']);
+							npm.stdout.on('data',function(data){
+								console.log(data.toString());
+							});
+							npm.on("close",function(code){
+								console.log("goodbye");
+								sentMsg.edit("brb!").then(function(){
+									bot.destroy().then(function(){
+										process.exit();
+									});
+								});
+							});
+						});
+					});
+				});
+			}
+		},
+		discrete: true
 	}
 	// 'newrole': {
 	// 	process: (msg,arg) => {
