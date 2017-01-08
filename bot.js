@@ -248,6 +248,6 @@ bot.on('message', (msg) => {
 
 bot.on('messageDelete', (msg)=> {
 	if (msg.author.bot||msg.system||msg.tts||msg.channel.type === 'dm') return;
-	msg.guild.channel.find('name', 'logs').sendMessage(`${new Date()} ${msg.author} - ${msg.cleanContent}`)
+	msg.guild.channels.find('name', 'logs').sendMessage(`${new Date()} ${msg.author} - ${msg.cleanContent}`)
 })
 
