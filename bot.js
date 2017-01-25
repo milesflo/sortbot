@@ -307,7 +307,7 @@ const commands = {
 			}
 		}
 	},
-	'isOfficer'; {
+	'isOfficer': {
 		process: (msg, arg) => {
 			if (!bot.checkRole(msg,["Overseer","Ranger"])) return;
 			if (msg.mentions.users.first() != undefined) {
@@ -328,6 +328,7 @@ const commands = {
 						msg.channel.sendMessage(`${target} is not an officer.`)
 					}
 				})
+			}
 
 		}
 	}
