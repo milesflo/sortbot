@@ -306,7 +306,7 @@ const commands = {
 				msg.channel.sendMessage("Mention a user to demote from officer.")
 			}
 		}
-	}
+	},
 	'isOfficer'; {
 		process: (msg, arg) => {
 			if (!bot.checkRole(msg,["Overseer","Ranger"])) return;
