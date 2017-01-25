@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
 		table.increments('id');
 		table.string('user_id');
 		table.string('server_id');
-		table.string('role_id');
+		table.string('role_name');
 	})
 };
 
