@@ -131,6 +131,12 @@ const commands = {
 		},
 		description: "Request to join the Dragon's Order"
 	},
+	'khans': {
+		process: (msg,arg)=> {
+			bot.requestInvite(msg,"Khans");
+		},
+		description: "Request to join the Khans"
+	},
 	'leaveall': {
 		process: (msg,arg)=> {
 			bot.setFaction(msg,"Dweller");
@@ -330,6 +336,16 @@ const commands = {
 				})
 			}
 
+		}
+	},
+	'welcomeTest': {
+		process: (msg, arg)=> {
+			let embed = new Discord.RichEmbed()
+			.setTitle("Welcome to New Vegas")
+			.setColor("#ffb642")
+			.addField("Test",`meme magic is real. ${msg.author}`)
+			.setThumbnail("https://pbs.twimg.com/profile_images/703681822916534272/Km6ucuin.jpg")
+			msg.channel.sendEmbed(embed);
 		}
 	}
 }
