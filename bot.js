@@ -283,7 +283,8 @@ const commands = {
 			}  else {
 				msg.channel.sendMessage("Mention a user to add as officer.")
 			}
-		}
+		},
+		discrete:true
 	},
 	// Demote an officer.
 	'removeOfficer': {
@@ -311,7 +312,8 @@ const commands = {
 			}  else {
 				msg.channel.sendMessage("Mention a user to demote from officer.")
 			}
-		}
+		},
+		discrete:true
 	},
 	'isOfficer': {
 		process: (msg, arg) => {
@@ -336,7 +338,8 @@ const commands = {
 				})
 			}
 
-		}
+		},
+		discrete:true
 	},
 	'welcomeTest': {
 		process: (msg, arg)=> {
@@ -346,7 +349,8 @@ const commands = {
 			.addField("Test",`meme magic is real. ${msg.author}`)
 			.setThumbnail("https://pbs.twimg.com/profile_images/703681822916534272/Km6ucuin.jpg")
 			msg.channel.sendEmbed(embed);
-		}
+		},
+		discrete:true
 	}
 }
 
