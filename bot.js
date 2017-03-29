@@ -125,12 +125,6 @@ const commands = {
 		},
 		description: "Request to join Auxilia Mercenary Company"
 	},
-	'dragon': {
-		process: (msg,arg)=> {
-			bot.requestInvite(msg,"Dragon's Order");
-		},
-		description: "Request to join the Dragon's Order"
-	},
 	'khans': {
 		process: (msg,arg)=> {
 			bot.requestInvite(msg,"Khans");
@@ -270,18 +264,18 @@ const commands = {
 						}).then(()=> {
 							msg.channel.sendMessage(`${target} has been made an officer of ${msg.guild.roles.find('id',roleId).name}`)
 						}).catch((err)=> {
-							console.log("Problem adding user to officer's table")
+							console.log("Problem adding user to officer's table");
 						})
 					} else {
 						let hasOfficers = "";
 						for (var i = rows.length - 1; i >= 0; i--) {
-							hasOfficers+=`- ${msg.guild.roles.find("id",rows[i].role_id).name}\n`;
+							hasOfficers+=`- ${msg.guild.roles.get(rows[i].role_id).name}\n`;
 						}
 						msg.channel.sendMessage("User is already an officer in the following groups:\n"+hasOfficers);
 					}
 				})
 			}  else {
-				msg.channel.sendMessage("Mention a user to add as officer.")
+				msg.channel.sendMessage("Mention a user to add as officer.");
 			}
 		},
 		discrete:true
@@ -297,7 +291,7 @@ const commands = {
 					'user_id':targetId
 				}).then((rows)=>{
 					if (rows.length>0) {
-						let role = msg.guild.roles.find("id",rows[0].role_id);
+						let role = msg.guild.roles.get(rows[0].role_id);
 						knex('officers').where({
 							'user_id':targetId
 						}).del().then(()=> {
@@ -305,12 +299,15 @@ const commands = {
 						}).catch((err)=> {
 							console.log("Problem adding user to officer's table")
 						})
+						return;
 					} else {
 						msg.channel.sendMessage("User is not an officer.")
+						return;
 					}
 				})
 			}  else {
 				msg.channel.sendMessage("Mention a user to demote from officer.")
+				return;
 			}
 		},
 		discrete:true
@@ -325,22 +322,28 @@ const commands = {
 					'user_id':targetId
 				}).then((rows)=> {
 					if (rows.length > 0) {
-						let hasOfficers = "";
+						let officerText = `${target} is an officer of the following groups:`;
 						for (var i = rows.length - 1; i >= 0; i--) {
-							hasOfficers+=`- ${msg.guild.roles.find("id",rows[i].role_id).name}\n`;
+							officerText+=`\n- ${msg.guild.roles.get(rows[i].role_id).name}`;
 						}
-						msg.channel.sendMessage(`${target} is an officer of these groups:\n
-							${hasOfficers}`);
+						msg.channel.sendMessage(officerText);
 						return;
 					}  else {
-						msg.channel.sendMessage(`${target} is not an officer.`)
+						msg.channel.sendMessage(`${target} is not an officer in any group.`)
 					}
 				})
+			} else {
+				msg.channel.sendMessage("Mention a user to pull up their info")
 			}
 
 		},
 		discrete:true
 	},
+	'fetchOfficers': {
+		process: () => {
+
+		}
+	}
 	'welcomeTest': {
 		process: (msg, arg)=> {
 			let embed = new Discord.RichEmbed()
