@@ -354,6 +354,9 @@ const commands = {
 			msg.channel.sendEmbed(embed);
 		},
 		discrete:true
+	},
+	'setMOTD': {
+
 	}
 }
 
@@ -371,19 +374,10 @@ bot.on('ready', () => {
 			let promiseArr = []
 			for (var i = 0; i < serverArr.length;i++) {
 				// Populate the metadata table on start
-				// knex('meta').insert({"server_id":serverArr[i].id}).then()
-				
 				promiseArr.push(
+					//This promise looks in the DB for an entry matching the server ID. If none, add, else nothing.
 					new Promise((resolve,reject)=> {
 						let serverObj = serverArr[i];
-					// knex('meta').insert({"server_id":serverArr[i].id})
-					
-
-					// knex('users').insert(
-					//   knex
-					//     .select('john.doe@email.com', 'John Doe')
-					//     .whereNotExists(knex('users').where('email', 'john.doe@email.com'))
-					// )
 						knex("meta").select("*").where({"server_id":serverObj.id})
 						.then(
 							(rows)=>{
@@ -428,8 +422,8 @@ bot.on("guildMemberAdd", (newMember) => {
 		console.log(rows);
 		if (rows.length==1) {
 			let data = rows[0];
-			if (data.defaultRole) {
-				newMember.addRole(newMember.guild.roles.get(defaultRole));
+			if (data.default_role) {
+				newMember.addRole(newMember.guild.roles.get(default_role));
 			}
 		} else if (rows.length==0) {
 			knex('meta').insert({
