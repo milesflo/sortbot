@@ -230,9 +230,9 @@ const commands = {
 			}).then((rows)=>{
 				if (rows.length>0) {
 					var entry = rows[0];
-					var server = bot.guilds.find('id',entry.server_id);
+					var server = bot.guilds.get(entry.server_id);
 					//Add role
-					server.members.find('id',entry.user_id).addRole(server.roles.find('name',entry.role_name)).then(()=> {
+					server.members.get(entry.user_id).addRole(server.roles.find('name',entry.role_name)).then(()=> {
 						knex('role_queue').where({
 							'id':arg
 						}).del().then(()=> {
@@ -257,12 +257,12 @@ const commands = {
 					'user_id':targetId
 				}).then((rows)=>{
 					if (rows.length==0) {
-						let roleId = msg.guild.members.find('id',targetId).highestRole.id;
+						let roleId = msg.guild.members.get(targetId).highestRole.id;
 						knex('officers').insert({
 							'user_id':targetId,
 							'role_id':roleId
 						}).then(()=> {
-							msg.channel.sendMessage(`${target} has been made an officer of ${msg.guild.roles.find('id',roleId).name}`)
+							msg.channel.sendMessage(`${target} has been made an officer of ${msg.guild.roles.get(roleId).name}`)
 						}).catch((err)=> {
 							console.log("Problem adding user to officer's table");
 						})
@@ -343,7 +343,7 @@ const commands = {
 		process: () => {
 
 		}
-	}
+	},
 	'welcomeTest': {
 		process: (msg, arg)=> {
 			let embed = new Discord.RichEmbed()
@@ -360,16 +360,87 @@ const commands = {
 bot.login(auth.token);
 
 bot.on('ready', () => {
-	bot.user.setGame(`Say ${char}help`).then(()=> {
-		console.log(`${bot.user.username} ready!`);
-	}).catch((err)=>{
-		console.log(err);
+	bot.user.setGame(`Say ${char}help`)
+	.then(
+		()=> {
+			console.log(`${bot.user.username} ready!`);
+		})
+	.then(
+		()=> {
+			let serverArr = bot.guilds.array();
+			let promiseArr = []
+			for (var i = 0; i < serverArr.length;i++) {
+				// Populate the metadata table on start
+				// knex('meta').insert({"server_id":serverArr[i].id}).then()
+				
+				promiseArr.push(
+					new Promise((resolve,reject)=> {
+						let serverObj = serverArr[i];
+					// knex('meta').insert({"server_id":serverArr[i].id})
+					
+
+					// knex('users').insert(
+					//   knex
+					//     .select('john.doe@email.com', 'John Doe')
+					//     .whereNotExists(knex('users').where('email', 'john.doe@email.com'))
+					// )
+						knex("meta").select("*").where({"server_id":serverObj.id})
+						.then(
+							(rows)=>{
+								if (rows.length === 0) {
+									console.log("firing")
+									knex("meta").insert({
+										"server_id":serverObj.id
+									}).then(()=>{
+										resolve()
+									})
+									// resolve()
+								}  else {
+									resolve()
+									// reject("test")
+								}
+							}
+						)
+					})
+				)
+			}
+			Promise.all(promiseArr).then(()=>{
+				console.log("All promises finished.")
+				knex('meta').select("*")
+				.then(
+					(rows)=> {
+						console.log(rows)
+					})
+			})
+		})
+	.catch(
+		(err)=>{
+			console.log(err);
 	})
 })
 
 bot.on("guildMemberAdd", (newMember) => {
-	newMember.addRole(newMember.guild.roles.find("name","Dweller"))
-	.then(newMember.guild.channels.find("name", "goodsprings").sendMessage(`Welcome to the official NV:MP Discord, ${newMember}. Be sure to read all the rules before posting, and _Enjoy Your Stay!_`))
+	// On new member, check metadata table for MOTD and default role.
+	knex('meta').select('*').where({
+		"server_id":newMember.guild.id
+	})
+	.then((rows)=> {
+		console.log(rows);
+		if (rows.length==1) {
+			let data = rows[0];
+			if (data.defaultRole) {
+				newMember.addRole(newMember.guild.roles.get(defaultRole));
+			}
+		} else if (rows.length==0) {
+			knex('meta').insert({
+				"server_id":newMember.guild.id
+			})
+		}
+	})
+	// newMember.addRole(newMember.guild.roles.find("name","Dweller"))
+	.then(
+		newMember.guild.defaultChannel.sendMessage(`Welcome to the official NV:MP Discord, ${newMember}. Be sure to read all the rules before posting, and _Enjoy Your Stay!_`)
+		)
 	.catch((err)=>{
 		console.log("Problem with guildMemberAdd:\n",err);
 	});
